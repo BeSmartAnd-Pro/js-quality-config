@@ -1,0 +1,14 @@
+{
+  "name": "@besmartandpro/stylelint-config",
+  "version": "1.0.0",
+  "main": "index.cjs",
+  "license": "UNLICENSED",
+  "peerDependencies": {
+    "stylelint": "^16.0.0",
+    "stylelint-config-recommended-scss": "^14.0.0",
+    "stylelint-declaration-strict-value": "^1.10.0",
+    "stylelint-order": "^6.0.0",
+    "stylelint-prettier": "^5.0.0",
+    "stylelint-scss": "^6.0.0"
+  }
+}
