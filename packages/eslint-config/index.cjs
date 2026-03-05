@@ -1,8 +1,15 @@
+const fs = require('node:fs');
+const path = require('node:path');
+
 const js = require('@eslint/js');
 const globals = require('globals');
 const tsParser = require('@typescript-eslint/parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const importPlugin = require('eslint-plugin-import');
+
+const projectRootDir = process.cwd();
+const tsconfigPath = path.join(projectRootDir, 'tsconfig.json');
+const hasTsconfig = fs.existsSync(tsconfigPath);
 
 module.exports = [
     {
@@ -18,12 +25,17 @@ module.exports = [
         files: ['assets/**/*.{ts,tsx}'],
         languageOptions: {
             parser: tsParser,
-            parserOptions: {
-                project: ['./tsconfig.json'],
-                tsconfigRootDir: __dirname,
-                sourceType: 'module',
-                ecmaVersion: 2022,
-            },
+            parserOptions: hasTsconfig
+                ? {
+                    project: ['./tsconfig.json'],
+                    tsconfigRootDir: projectRootDir,
+                    sourceType: 'module',
+                    ecmaVersion: 2022,
+                }
+                : {
+                    sourceType: 'module',
+                    ecmaVersion: 2022,
+                },
             globals: {
                 ...globals.browser,
                 ...globals.node,
@@ -35,15 +47,25 @@ module.exports = [
             '@typescript-eslint': tsPlugin,
             import: importPlugin,
         },
-        settings: {
-            'import/resolver': {
-                typescript: { project: ['./tsconfig.json'] },
-            },
-        },
+        settings: hasTsconfig
+            ? {
+                'import/resolver': {
+                    typescript: {
+                        project: ['./tsconfig.json'],
+                    },
+                },
+            }
+            : undefined,
         rules: {
             ...js.configs.recommended.rules,
-            ...tsPlugin.configs['recommended-type-checked'].rules,
-            ...tsPlugin.configs['stylistic-type-checked'].rules,
+            ...(hasTsconfig
+                ? {
+                    ...tsPlugin.configs['recommended-type-checked'].rules,
+                    ...tsPlugin.configs['stylistic-type-checked'].rules,
+                }
+                : {
+                    ...tsPlugin.configs.recommended.rules,
+                }),
             'max-len': ['warn', { code: 120, ignoreComments: true, ignoreStrings: true }],
             'no-promise-executor-return': 'off',
             '@typescript-eslint/explicit-function-return-type': 'off',
