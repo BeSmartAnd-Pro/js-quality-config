@@ -10,6 +10,17 @@ const importPlugin = require('eslint-plugin-import');
 const projectRootDir = process.cwd();
 const tsconfigPath = path.join(projectRootDir, 'tsconfig.json');
 const hasTsconfig = fs.existsSync(tsconfigPath);
+const sharedGlobals = {
+    ...globals.browser,
+    ...globals.node,
+    $: 'readonly',
+    jQuery: 'readonly',
+};
+const sharedRules = {
+    ...js.configs.recommended.rules,
+    'max-len': ['warn', { code: 120, ignoreComments: true, ignoreStrings: true }],
+    'no-promise-executor-return': 'off',
+};
 
 module.exports = [
     {
@@ -27,21 +38,16 @@ module.exports = [
             parser: tsParser,
             parserOptions: hasTsconfig
                 ? {
-                    project: ['./tsconfig.json'],
+                    projectService: true,
                     tsconfigRootDir: projectRootDir,
                     sourceType: 'module',
-                    ecmaVersion: 2022,
+                    ecmaVersion: 'latest',
                 }
                 : {
                     sourceType: 'module',
-                    ecmaVersion: 2022,
+                    ecmaVersion: 'latest',
                 },
-            globals: {
-                ...globals.browser,
-                ...globals.node,
-                $: 'readonly',
-                jQuery: 'readonly',
-            },
+            globals: sharedGlobals,
         },
         plugins: {
             '@typescript-eslint': tsPlugin,
@@ -57,7 +63,7 @@ module.exports = [
             }
             : undefined,
         rules: {
-            ...js.configs.recommended.rules,
+            ...sharedRules,
             ...(hasTsconfig
                 ? {
                     ...tsPlugin.configs['recommended-type-checked'].rules,
@@ -66,8 +72,6 @@ module.exports = [
                 : {
                     ...tsPlugin.configs.recommended.rules,
                 }),
-            'max-len': ['warn', { code: 120, ignoreComments: true, ignoreStrings: true }],
-            'no-promise-executor-return': 'off',
             '@typescript-eslint/explicit-function-return-type': 'off',
             'import/extensions': ['error', 'ignorePackages', {
                 js: 'always',
@@ -82,22 +86,15 @@ module.exports = [
         languageOptions: {
             parserOptions: {
                 sourceType: 'module',
-                ecmaVersion: 2022,
+                ecmaVersion: 'latest',
             },
-            globals: {
-                ...globals.browser,
-                ...globals.node,
-                $: 'readonly',
-                jQuery: 'readonly',
-            },
+            globals: sharedGlobals,
         },
         plugins: {
             import: importPlugin,
         },
         rules: {
-            ...js.configs.recommended.rules,
-            'max-len': ['warn', { code: 120, ignoreComments: true, ignoreStrings: true }],
-            'no-promise-executor-return': 'off',
+            ...sharedRules,
             'import/extensions': ['error', 'ignorePackages', { js: 'always' }],
         },
     },
