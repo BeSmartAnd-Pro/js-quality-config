@@ -53,15 +53,17 @@ module.exports = [
             '@typescript-eslint': tsPlugin,
             import: importPlugin,
         },
-        settings: hasTsconfig
+        ...(hasTsconfig
             ? {
-                'import/resolver': {
-                    typescript: {
-                        project: ['./tsconfig.json'],
+                settings: {
+                    'import/resolver': {
+                        typescript: {
+                            project: ['./tsconfig.json'],
+                        },
                     },
                 },
             }
-            : undefined,
+            : {}),
         rules: {
             ...sharedRules,
             ...(hasTsconfig
